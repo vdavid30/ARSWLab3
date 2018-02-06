@@ -26,18 +26,18 @@ Por defecto, el manejador de órdenes tiene dos órdenes registradas para las me
 * Orden Mesa 1:
 
 	| Producto      | Cantidad | Precio Unitario          | 
-| ------------- | ----- |:-------------:| 
-|PIZZA|3|$10000|
-|HOTDOG|1|$3000|
-|COKE|4|$1300|
+	| ------------- | ----- |:-------------:| 
+	|PIZZA|3|$10000|
+	|HOTDOG|1|$3000|
+	|COKE|4|$1300|
 
 
 * Orden Mesa 3:
 
 	| Producto      | Cantidad | Precio  Unitario         | 
-| ------------- | ----- |:-------------:| 
-|HAMBURGER|2|$12300|
-|COKE|2|$1300|
+	| ------------- | ----- |:-------------:| 
+	|HAMBURGER|2|$12300|
+	|COKE|2|$1300|
 
 
 
@@ -47,24 +47,22 @@ Por defecto, el manejador de órdenes tiene dos órdenes registradas para las me
 1. Configure su aplicación para que ofrezca el recurso "/orders", de manera que cuando se le haga una petición GET, retorne -en formato jSON- el conjunto de todas las órdenes. Para esto:
 	* Modifique la clase OrdersAPIController teniendo en cuenta el siguiente ejemplo de controlador REST hecho con SpringMVC/SpringBoot:
 
-	```java
-@RestController
-@RequestMapping(value = "/url-raiz-recurso")
-public class XXController {
-    
-        
-    @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<?> manejadorGetRecursoXX(){
-        try {
-            //obtener datos que se enviarán a través del API
-            return new ResponseEntity<>(data,HttpStatus.ACCEPTED);
-        } catch (XXException ex) {
-            Logger.getLogger(XXController.class.getName()).log(Level.SEVERE, null, ex);
-            return new ResponseEntity<>("Error bla bla bla",HttpStatus.NOT_FOUND);
-        }        
-}
+		```java
+		@RestController
+		@RequestMapping(value = "/url-raiz-recurso")
+		public class XXController {
+			@RequestMapping(method = RequestMethod.GET)
+			public ResponseEntity<?> manejadorGetRecursoXX(){
+				try {
+					//obtener datos que se enviarán a través del API
+					return new ResponseEntity<>(data,HttpStatus.ACCEPTED);
+				} catch (XXException ex) {
+					Logger.getLogger(XXController.class.getName()).log(Level.SEVERE, null, ex);
+					return new ResponseEntity<>("Error bla bla bla",HttpStatus.NOT_FOUND);
+				}        
+		}
 
-	```
+		```
 	* Haga que en esta misma clase se inyecte el bean de tipo RestaurantOrderServices, y que a éste -a su vez-, se le inyecte el bean BasicBillCalculator. Para esto, revise en [la documentación de Spring](http://docs.spring.io/spring/docs/current/spring-framework-reference/html/beans.html) las secciones 7.9.2 y 7.10.3, respecto a cómo declarar Beans, y cómo definir la inyección de dependencias entre éstos, mediante anotaciones.
 
 2. Verifique el funcionamiento de a aplicación lanzando la aplicación con maven:
@@ -79,22 +77,22 @@ public class XXController {
 3. Modifique el controlador para que ahora, adicionalmente, acepte peticiones GET al recurso /orden/{idmesa}, donde {idmesa} es el número de una mesa en particular. En este caso, la respuesta debe ser la orden que corresponda a la mesa indicada en formato jSON, o un error 404 si la mesa no existe o no tiene una orden asociada. Para esto, revise en [la documentación de Spring](http://docs.spring.io/spring/docs/current/spring-framework-reference/html/mvc.html), sección 22.3.2, el uso de @PathVariable. De nuevo, verifique que al hacer una petición GET -por ejemplo- a recurso http://localhost:8080/orders/1, se obtenga en formato jSON el detalle correspondiente a la orden de la mesa 1.
 
 
-###Parte II
+### Parte II
 
 1.  Agregue el manejo de peticiones POST (creación de nuevas ordenes), de manera que un cliente http pueda registrar una nueva orden haciendo una petición POST al recurso ‘ordenes’, y enviando como contenido de la petición todo el detalle de dicho recurso a través de un documento jSON. Para esto, tenga en cuenta el siguiente ejemplo, que considera -por consistencia con el protocolo HTTP- el manejo de códigos de estados HTTP (en caso de éxito o error):
 
 	```	java
-@RequestMapping(method = RequestMethod.POST)	
-	public ResponseEntity<?> manejadorPostRecursoXX(@RequestBody TipoXX o){
-        try {
-            //registrar dato
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (XXException ex) {
-            Logger.getLogger(XXController.class.getName()).log(Level.SEVERE, null, ex);
-            return new ResponseEntity<>("Error bla bla bla",HttpStatus.FORBIDDEN);            
-        }        
- 	
-	}
+		@RequestMapping(method = RequestMethod.POST)	
+		public ResponseEntity<?> manejadorPostRecursoXX(@RequestBody TipoXX o){
+			try {
+				//registrar dato
+				return new ResponseEntity<>(HttpStatus.CREATED);
+			} catch (XXException ex) {
+				Logger.getLogger(XXController.class.getName()).log(Level.SEVERE, null, ex);
+				return new ResponseEntity<>("Error bla bla bla",HttpStatus.FORBIDDEN);            
+			}        
+		
+		}
 	```	
 
 
@@ -112,11 +110,11 @@ public class XXController {
 	Con lo anterior, registre una nueva orden (para 'diseñar' un objeto jSON, puede usar [esta herramienta](http://www.jsoneditoronline.org/)):
 
 
-	| Producto      | Cantidad |
-| ------------- | ----- |
-|HAMBURGER|2|
-|PIZZA|3|$10000|
-|BEER|2|$2500|
+	|  Producto      | Cantidad |
+	| ------------- | ----- |
+	|  HAMBURGER|2|
+	|  PIZZA|3|$10000|
+	|  BEER|2|$2500|
 
 	Nota: puede basarse en el formato jSON mostrado en el navegador al consultar una orden con el método GET.
 
@@ -124,7 +122,7 @@ public class XXController {
 3. Teniendo en cuenta el número de mesa asociado a la nueva orden, verifique que la misma se pueda obtener mediante una petición GET al recurso '/orders/{idmesa}' correspondiente.
 
 
-###Parte III
+### Parte III
 
 
 4. Haga lo necesario para que ahora el API acepte peticiones al recurso '/orders/{idmesa}/total, las cuales retornen el total de la cuenta de la orden {idorden}.
@@ -137,7 +135,7 @@ public class XXController {
 	 BillWithTaxesCalculator + TaxesCalculator2016ColTributaryReform, agregue unos casos de prueba (a partir de unas clases de equivalencia) para probar el método   __calculateTableBill(int tableNumber)__. 
 
 
-###Parte IV
+### Parte IV
 
 1. Se requiere que el API permita agregar un producto a una orden. Revise [acá](http://restcookbook.com/HTTP%20Methods/put-vs-post/) cómo se debe manejar el verbo PUT con este fin, y haga la implementación en el proyecto.
 2. Se requiere que el API permita cancelar la orden de una mesa. Agregue esta funcionalidad teniendo en cuenta que de acuerdo con el estilo REST, ésto se debería poder hacer usando el verbo DELETE en el recurso /orders/{idmesa}.
@@ -147,12 +145,12 @@ public class XXController {
 Escriba su análisis en el archivo ANALISIS_CONCURRENCIA.txt
 
 	
-### Criterios de evaluación
+<!--### Criterios de evaluación
 
 1. Se pueden crear nuevas órdenes, mediante POST.
 2. Se puede calcular el valor de la orden, mediante GET.
 3. La aplicación permite cambiar la estrategia de cálculo del valor de la orden (cambiando las anotaciones @Service).
 4. La aplicación permite actualizar las órdenes mediante PUT.
-5. En análisis de las posibles condiciones de carrera es consistente.
+5. En análisis de las posibles condiciones de carrera es consistente.-->
 
 
