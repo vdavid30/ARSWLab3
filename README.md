@@ -59,7 +59,8 @@ Por defecto, el manejador de órdenes tiene dos órdenes registradas para las me
 				} catch (XXException ex) {
 					Logger.getLogger(XXController.class.getName()).log(Level.SEVERE, null, ex);
 					return new ResponseEntity<>("Error bla bla bla",HttpStatus.NOT_FOUND);
-				}        
+				}  
+			}      
 		}
 
 		```
