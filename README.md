@@ -3,6 +3,10 @@
 ### Arquitecturas de Software
 
 
+## Antes de hacer este ejercicio, realice [el ejercicio introductorio al manejo de Spring y la configuración basada en anotaciones](https://github.com/ARSW-ECI/Spring_LightweightCont_Annotation-DI_Example).
+
+
+
 #### API REST adaptable para el cálculo de cuentas de restaurantes.
 
 En este proyecto se va a construír un API REST que permita calcular el valor total de una cuenta de restaurante, teniendo en cuenta las políticas y regímenes tributarios configurados para la misma.
