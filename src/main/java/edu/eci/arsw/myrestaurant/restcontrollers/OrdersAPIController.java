@@ -24,6 +24,7 @@ import edu.eci.arsw.myrestaurant.services.RestaurantOrderServices;
 import edu.eci.arsw.myrestaurant.services.RestaurantOrderServicesStub;
 import java.util.Collection;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,10 +33,14 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
@@ -50,6 +55,58 @@ public class OrdersAPIController {
     public OrdersAPIController(RestaurantOrderServicesStub restaurantStub){
         this.restaurantStub = restaurantStub;
     }
+    @GetMapping("/{idmesa}")
+    public ResponseEntity getOrder(@PathVariable int idmesa) {
+        try {
+            Map<String, Integer> amounts =  new ConcurrentHashMap();  
+            amounts = restaurantStub.getTableOrder(idmesa).getOrderAmountsMap();
+            String json = new ObjectMapper().writeValueAsString(amounts);
+            return  new ResponseEntity<>(json,HttpStatus.ACCEPTED);
+        } catch (Exception ex) {
+            Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseEntity<>("No se encuentra la Mesa",HttpStatus.NOT_FOUND);
+        }
+    }
+    
+    @GetMapping("/{idmesa}/total")
+    public ResponseEntity getOrderCost(@PathVariable int idmesa) {
+        try {
+            Map<Integer,Order> mapOrders = new ConcurrentHashMap<>();
+            int orderCost = restaurantStub.calculateTableBill(idmesa);
+            return new ResponseEntity<>(orderCost,HttpStatus.ACCEPTED);
+        } catch (Exception ex) {
+            Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseEntity<>("No se encuentra la Mesa",HttpStatus.NOT_FOUND);
+        }
+    }
+    @RequestMapping(method = RequestMethod.POST)	
+	public ResponseEntity<?> manejadorPostRecursoXX(@RequestBody String orden){
+            try {
+                JSONObject obj =  new JSONObject(orden);
+                Iterator<?> keys = obj.keys();
+                Order ord = new Order(obj.getInt("TABLE"));
+                while(keys.hasNext() ){
+                    String key = (String)keys.next();
+                    if(key!="TABLE"){                        
+                        JSONObject nOrder = obj.getJSONObject("ORDER");
+                        Iterator<?> nKeys = nOrder.keys();
+                        while(nKeys.hasNext()){
+                            String nKey = (String) nKeys.next();
+                            ord.addDish(nKey, nOrder.getInt(nKey));                                        
+                        
+                        }
+                        
+                    }
+                }    
+                
+                restaurantStub.addNewOrderToTable(ord);
+
+		return new ResponseEntity<>(HttpStatus.CREATED);
+            } catch (Exception ex) {
+		Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
+		return new ResponseEntity<>("Error bla bla bla",HttpStatus.FORBIDDEN);            
+            }        
+	}
     
     
     
