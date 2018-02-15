@@ -22,6 +22,7 @@ import edu.eci.arsw.myrestaurant.model.ProductType;
 import edu.eci.arsw.myrestaurant.model.RestaurantProduct;
 import edu.eci.arsw.myrestaurant.services.RestaurantOrderServices;
 import edu.eci.arsw.myrestaurant.services.RestaurantOrderServicesStub;
+import java.lang.ProcessBuilder.Redirect.Type;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -41,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.json.JSONException;
 import org.json.JSONObject;
+import com.google.gson.reflect.TypeToken;
 
 /**
  *
@@ -55,16 +57,43 @@ public class OrdersAPIController {
     public OrdersAPIController(RestaurantOrderServicesStub restaurantStub){
         this.restaurantStub = restaurantStub;
     }
+    
+    @RequestMapping(method = RequestMethod.PUT, path = "/{idmesa}")
+    public ResponseEntity<?> updateOrder(@PathVariable String idmesa, @RequestBody String nOrder){
+        JSONObject obj =  new JSONObject(nOrder);
+        Iterator<?> keys = obj.keys();
+        while(keys.hasNext()){
+            String key = (String) keys.next();
+            try {
+                restaurantStub.getTableOrder(Integer.parseInt(idmesa)).addDish(key, obj.getInt(key));               
+            } catch (Exception ex) {
+                Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
+                return new ResponseEntity<>(HttpStatus.CONFLICT);
+            }
+         }
+         return new ResponseEntity<>(HttpStatus.ACCEPTED);               
+         
+     }
+    @RequestMapping(method = RequestMethod.DELETE, path = "/{idmesa}")
+    public ResponseEntity<?> deleteOrder(@PathVariable String idmesa){
+        try {
+            restaurantStub.releaseTable(Integer.parseInt(idmesa));
+            return new ResponseEntity<>(HttpStatus.OK);
+         } catch (Exception ex) {
+             Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
+             return new ResponseEntity<>(HttpStatus.CONFLICT);
+         }
+     }
     @GetMapping("/{idmesa}")
     public ResponseEntity getOrder(@PathVariable int idmesa) {
         try {
             Map<String, Integer> amounts =  new ConcurrentHashMap();  
             amounts = restaurantStub.getTableOrder(idmesa).getOrderAmountsMap();
             String json = new ObjectMapper().writeValueAsString(amounts);
-            return  new ResponseEntity<>(json,HttpStatus.ACCEPTED);
+            return  new ResponseEntity<>(json,HttpStatus.OK);
         } catch (Exception ex) {
             Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
-            return new ResponseEntity<>("No se encuentra la Mesa",HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ex.getMessage(),HttpStatus.NOT_FOUND);
         }
     }
     
@@ -73,10 +102,10 @@ public class OrdersAPIController {
         try {
             Map<Integer,Order> mapOrders = new ConcurrentHashMap<>();
             int orderCost = restaurantStub.calculateTableBill(idmesa);
-            return new ResponseEntity<>(orderCost,HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(orderCost,HttpStatus.OK);
         } catch (Exception ex) {
             Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
-            return new ResponseEntity<>("No se encuentra la Mesa",HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ex.getMessage(),HttpStatus.NOT_FOUND);
         }
     }
     @RequestMapping(method = RequestMethod.POST)	
@@ -97,14 +126,12 @@ public class OrdersAPIController {
                         }
                         
                     }
-                }    
-                
+                }                    
                 restaurantStub.addNewOrderToTable(ord);
-
-		return new ResponseEntity<>(HttpStatus.CREATED);
+		return new ResponseEntity<>(HttpStatus.OK);
             } catch (Exception ex) {
 		Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
-		return new ResponseEntity<>("Error bla bla bla",HttpStatus.FORBIDDEN);            
+		return new ResponseEntity<>(ex.getMessage(),HttpStatus.METHOD_NOT_ALLOWED);            
             }        
 	}
     
@@ -120,10 +147,10 @@ public class OrdersAPIController {
                 amounts.putAll(o.getOrderAmountsMap());                
             }
             String json = new ObjectMapper().writeValueAsString(amounts);
-            return  new ResponseEntity<>(json,HttpStatus.ACCEPTED);
+            return  new ResponseEntity<>(json,HttpStatus.OK);
         } catch (Exception ex) {
             Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
-            return new ResponseEntity<>("Error bla bla bla",HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ex.getMessage(),HttpStatus.NOT_FOUND);
         }  
     }      
 }
